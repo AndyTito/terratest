@@ -1,0 +1,11 @@
+{
+  "name": "terraproject",
+  "version": "1.0.0",
+  "description": "Proyecto Fullstack con carpetas front y back",
+  "scripts": {
+    "start:back": "npm --prefix back start",
+    "dev:back": "npm --prefix back run dev",
+    "dev:front": "npm --prefix front run dev",
+    "build:front": "npm --prefix front run build"
+  }
+}

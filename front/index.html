@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aplicación Fullstack: Frontend conectado a API Backend en Node.js y Express">
+  <title>Terra App • Frontend & Backend Conectados</title>
+  
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Fondo con degradados de ambiente -->
+  <div class="glow-sphere sphere-1"></div>
+  <div class="glow-sphere sphere-2"></div>
+
+  <div class="app-container">
+    <!-- Encabezado Principal -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1 class="title">Terra Fullstack</h1>
+          <p class="subtitle">Frontend Vite consumiendo API REST Node.js</p>
+        </div>
+      </div>
+
+      <!-- Widget de Estado del Backend en Tiempo Real -->
+      <div class="status-card" id="status-card">
+        <div class="status-indicator-wrapper">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="status-text">Conectando...</span>
+        </div>
+        <div class="status-meta">
+          <span class="meta-item" id="status-env">Entorno: --</span>
+          <span class="meta-item" id="status-port">Puerto: --</span>
+          <span class="meta-item" id="status-ping">Ping: -- ms</span>
+        </div>
+        <button id="btn-refresh-status" class="btn-icon" title="Volver a comprobar estado" aria-label="Refrescar estado">
+          🔄
+        </button>
+      </div>
+    </header>
+
+    <!-- Barra de Métricas y Estadísticas -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Estado de la API</span>
+        <span class="metric-val text-success" id="metric-health">Verificando...</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Mensajes Recibidos</span>
+        <span class="metric-val" id="metric-count">0</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Tiempo Activo del Back</span>
+        <span class="metric-val" id="metric-uptime">0s</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Última Sincronización</span>
+        <span class="metric-val text-muted" id="metric-synced">--:--:--</span>
+      </div>
+    </section>
+
+    <!-- Contenido Principal: Formulario + Lista de Mensajes del Backend -->
+    <main class="main-layout">
+      <!-- Sección: Enviar Datos al Backend -->
+      <section class="card glass-panel" id="section-form">
+        <div class="panel-header">
+          <h2 class="panel-title">Enviar Datos al Backend</h2>
+          <span class="badge badge-primary">POST /api/messages</span>
+        </div>
+        <form id="message-form" class="message-form">
+          <div class="form-group">
+            <label for="author-input">Tu Nombre o Alias</label>
+            <input 
+              type="text" 
+              id="author-input" 
+              name="author" 
+              placeholder="Ej. Carlos Dev" 
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-group">
+            <label for="message-input">Mensaje / Contenido *</label>
+            <textarea 
+              id="message-input" 
+              name="text" 
+              rows="3" 
+              placeholder="Escribe algo para enviar a la API del servidor..." 
+              required
+            ></textarea>
+          </div>
+          <button type="submit" id="btn-submit-message" class="btn btn-primary">
+            <span class="btn-text">Enviar al Backend</span>
+            <span class="btn-spinner hidden" id="form-spinner"></span>
+          </button>
+        </form>
+
+        <!-- Panel de Prueba de Variable de Entorno APP_SECRET -->
+        <div class="secret-test-panel" style="margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border-subtle);">
+          <div class="panel-header" style="margin-bottom: 0.8rem; padding-bottom: 0;">
+            <h3 style="font-size: 0.95rem; font-family: var(--font-heading); color: #c7d2fe;">🔐 Probar Endpoint Protegido</h3>
+            <span class="badge badge-accent">GET /api/secret-data</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.8rem;">
+            Prueba el encabezado <code>x-app-secret</code> contra la variable de entorno <strong>APP_SECRET</strong> del backend.
+          </p>
+          <div style="display: flex; gap: 0.5rem;">
+            <input 
+              type="password" 
+              id="secret-input" 
+              placeholder="Escribe la clave secreta..." 
+              value="secreto-dev-123"
+              style="font-size: 0.85rem; padding: 0.6rem 0.8rem;"
+            />
+            <button type="button" id="btn-test-secret" class="btn btn-secondary btn-sm" style="white-space: nowrap;">
+              Verificar
+            </button>
+          </div>
+          <div id="secret-result" style="margin-top: 0.6rem; font-size: 0.8rem; min-height: 1.2rem;"></div>
+        </div>
+      </section>
+
+      <!-- Sección: Datos Consumidos del Backend -->
+      <section class="card glass-panel" id="section-data">
+        <div class="panel-header">
+          <div class="header-left">
+            <h2 class="panel-title">Mensajes desde el Backend</h2>
+            <span class="badge badge-accent" id="live-count-badge">0 elementos</span>
+          </div>
+          <button id="btn-fetch-messages" class="btn btn-secondary btn-sm" title="Recargar mensajes">
+            <span>Sincronizar</span> 📥
+          </button>
+        </div>
+
+        <!-- Contenedor dinámico de elementos recibidos -->
+        <div id="messages-list" class="messages-list">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">📡</div>
+            <p>Obteniendo mensajes del servidor...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Notificación flotante (Toast) -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Pie de página informativo -->
+    <footer class="app-footer">
+      <p>Desarrollado con <strong>HTML, Vanilla CSS & JS</strong> • Backend con <strong>Node.js & Express</strong></p>
+    </footer>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
