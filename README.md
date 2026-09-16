@@ -1,6 +1,6 @@
 # Terra Project: Fullstack (Front & Back)
 
-Aplicación fullstack estructurada en carpetas separadas `front/` y `back/`, conectadas a través de API REST.
+Aplicación fullstack (React + Node.js) desplegada en **Google Cloud Run** con imágenes publicadas automáticamente en **GitHub Packages** via CI/CD.
 
 ---
 
@@ -8,45 +8,66 @@ Aplicación fullstack estructurada en carpetas separadas `front/` y `back/`, con
 
 ```
 terraproject/
-├── back/
-│   ├── package.json       # Dependencias del backend (express, cors)
-│   └── server.js          # Servidor Express y endpoints API REST
-├── front/
-│   ├── index.html         # Estructura semántica, widgets de estado y layout
-│   ├── style.css          # Estilos modernos (dark mode, glassmorphism, responsive)
-│   ├── main.js            # Cliente JavaScript (consumo de API con fetch y renderizado reactivo)
-│   ├── vite.config.js     # Configuración de Vite con proxy a puerto 3001
-│   └── package.json       # Dependencias del frontend (vite)
-└── package.json           # Scripts para ejecución desde la raíz
+├── back/               → API REST Node.js/Express
+│   ├── server.js
+│   └── Dockerfile
+├── front/              → SPA React + Vite + Nginx
+│   ├── index.html
+│   ├── style.css
+│   ├── main.js
+│   └── Dockerfile
+├── infra/              → Infraestructura como código (Terraform)
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── providers.tf
+│   └── terraform.tfvars.example
+├── .github/
+│   └── workflows/
+│       └── docker-publish.yml  → CI: build + push a ghcr.io
+└── package.json        → Scripts de desarrollo y deploy
 ```
 
 ---
 
-## 🚀 Cómo Ejecutar el Proyecto
+## 🚀 Desarrollo Local
 
-Abre dos terminales (una para el backend y otra para el frontend):
-
-### 1. Iniciar el Backend (Terminal 1)
 ```bash
-# Opción A: Desde la raíz del proyecto
-npm run start:back
+# Backend (http://localhost:3001)
+npm run dev:back
 
-# Opción B: Entrando a la carpeta back/
-cd back
-npm start
-```
-> El servidor backend iniciará en: **`http://localhost:3001`**
-
-### 2. Iniciar el Frontend (Terminal 2)
-```bash
-# Opción A: Desde la raíz del proyecto
+# Frontend (http://localhost:5173)
 npm run dev:front
-
-# Opción B: Entrando a la carpeta front/
-cd front
-npm run dev
 ```
-> La aplicación web abrirá en: **`http://localhost:5173`**
+
+---
+
+## ☁️ Despliegue en Producción
+
+El flujo normal de trabajo es:
+
+```bash
+# 1. Subir código → GitHub Action compila y publica imágenes automáticamente
+git push
+
+# 2. Actualizar Cloud Run con las nuevas imágenes
+npm run deploy
+```
+
+---
+
+## 📋 Scripts Disponibles
+
+| Script | Descripción |
+| :--- | :--- |
+| `npm run dev:back` | Servidor Node.js local |
+| `npm run dev:front` | Vite dev server local |
+| `npm run deploy` | Actualiza ambos servicios en Cloud Run |
+| `npm run deploy:back` | Actualiza solo el backend |
+| `npm run deploy:front` | Actualiza solo el frontend |
+| `npm run infra:plan` | Previsualiza cambios de Terraform |
+| `npm run infra:apply` | Aplica cambios de Terraform |
+| `npm run infra:destroy` | Destruye la infraestructura |
 
 ---
 
@@ -54,15 +75,12 @@ npm run dev
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/api/health` | Estado del backend, puerto, uptime y timestamp |
-| `GET` | `/api/messages` | Lista de todos los mensajes registrados |
-| `POST` | `/api/messages` | Agrega un nuevo mensaje (`{ "author": "...", "text": "..." }`) |
-| `DELETE` | `/api/messages/:id` | Elimina un mensaje por su ID |
+| `GET` | `/api/health` | Estado, entorno, uptime y timestamp |
+| `GET` | `/api/messages` | Lista de mensajes |
+| `POST` | `/api/messages` | Agrega un mensaje `{ "author": "...", "text": "..." }` |
+| `DELETE` | `/api/messages/:id` | Elimina un mensaje por ID |
+| `GET` | `/api/secret-data` | Requiere cabecera `x-app-secret` → 403 si inválida |
 
 ---
 
-## ✨ Características del Frontend
-- **Indicador de Conexión en Vivo**: Muestra si el backend está en línea, el puerto y la latencia (ping en ms).
-- **Consumo Dinámico**: Trae mensajes precargados del backend, permite crear nuevos y eliminarlos en tiempo real.
-- **Diseño Moderno**: Paleta de colores cyber/dark, efecto de cristal (*glassmorphism*), tipografía *Outfit* y micro-animaciones.
-- **Proxy Configurado**: Peticiones a `/api` se redirigen automáticamente a `http://localhost:3001`.
+> 📘 Ver [GUIA_INFRAESTRUCTURA.md](./GUIA_INFRAESTRUCTURA.md) para documentación completa del proceso de despliegue.
