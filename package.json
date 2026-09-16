@@ -6,6 +6,15 @@
     "start:back": "npm --prefix back start",
     "dev:back": "npm --prefix back run dev",
     "dev:front": "npm --prefix front run dev",
-    "build:front": "npm --prefix front run build"
+    "build:front": "npm --prefix front run build",
+
+    "deploy:back": "gcloud run deploy terra-backend --image=ghcr.io/andytito/terratest-backend:latest --region=us-central1 --project=terra-fullstack-demo",
+    "deploy:front": "gcloud run deploy terra-frontend --image=ghcr.io/andytito/terratest-frontend:latest --region=us-central1 --project=terra-fullstack-demo",
+    "deploy": "npm run deploy:back && npm run deploy:front",
+
+    "infra:plan": "cd infra && terraform plan",
+    "infra:apply": "cd infra && terraform apply",
+    "infra:destroy": "cd infra && terraform destroy"
   }
 }
+

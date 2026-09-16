@@ -22,22 +22,17 @@ variable "app_secret" {
   default     = "clave-secreta-cloudrun-12345"
 }
 
-variable "artifact_repo_name" {
-  type        = string
-  description = "Nombre del repositorio Docker en Artifact Registry."
-  default     = "terra-repo"
-}
 
 variable "backend_image" {
   type        = string
-  description = "URI de la imagen de contenedor para el backend."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+  description = "URI de la imagen de contenedor para el backend (ghcr.io)."
+  default     = "ghcr.io/andytito/terratest-backend:latest"
 }
 
 variable "frontend_image" {
   type        = string
-  description = "URI de la imagen de contenedor para el frontend."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+  description = "URI de la imagen de contenedor para el frontend (ghcr.io)."
+  default     = "ghcr.io/andytito/terratest-frontend:latest"
 }
 
 variable "min_instance_count" {

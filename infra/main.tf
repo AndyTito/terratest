@@ -3,24 +3,6 @@ resource "google_project_service" "cloud_run_api" {
   disable_on_destroy = false
 }
 
-resource "google_project_service" "artifact_registry_api" {
-  service            = "artifactregistry.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_artifact_registry_repository" "terra_repo" {
-  repository_id = var.artifact_repo_name
-  format        = "DOCKER"
-  location      = var.region
-  description   = "Repositorio Docker para imagenes de backend y frontend (Terra Project)"
-
-#  lifecycle {
-#    prevent_destroy = true
-#  }
-
-  depends_on = [google_project_service.artifact_registry_api]
-}
-
 resource "google_cloud_run_v2_service" "backend" {
   name     = "terra-backend"
   location = var.region
